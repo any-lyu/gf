@@ -11,6 +11,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/gogf/gf/errors/gcode"
+	"google.golang.org/protobuf/reflect/protoreflect"
 	"reflect"
 	"regexp"
 	"strings"
@@ -245,6 +246,11 @@ func DataToMapDeep(value interface{}) map[string]interface{} {
 			m[k] = v
 
 		default:
+			// 修复proto枚举字段被强转string的问题
+			if e, ok := v.(protoreflect.Enum); ok {
+				m[k] = e.Number()
+				continue
+			}
 			// Use string conversion in default.
 			if s, ok := v.(apiString); ok {
 				m[k] = s.String()
